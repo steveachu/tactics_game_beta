@@ -1,6 +1,6 @@
 # tactics_game_beta
 
-<img src = http://i.imgur.com/A36ZA8b.png>
+<img src = http://i.imgur.com/1YxpjN9.png>
 
 Control the player unit by using the arrow keys.
 
