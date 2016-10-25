@@ -24,6 +24,10 @@ public class Tile {
         }
     }
     
+    public boolean isPassable() {
+        return mIsPassable;
+    }
+    
     public void setTerrainType(int type) {
         mTerrainType = type;
     }

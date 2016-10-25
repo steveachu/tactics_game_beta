@@ -21,7 +21,7 @@ public class GameScreen implements Screen {
         private Music mFirstLevelMusic;
 	private OrthographicCamera camera;
         private SpriteBatch batch;
-        private Rectangle mPlayer;
+        private Player mPlayer;
         private Tile[][] mWorld;
         private char[][] mPlayerPosition;
         
@@ -40,9 +40,14 @@ public class GameScreen implements Screen {
         private Tile mDirtTile, mDirtTile2, mDirtTile3;
         private Tile mBridgeTile;
         private Tile mOrangeTreeTile;
-               
+        private Tile mCatTile;       
+        
         private Sound mInvalidSound;
         private Sound mSelectionSound;
+        private Sound mMeow;
+        private Sound mBark;
+        
+        private Texture mCat;
         
         private Texture mMountainSheet;
         
@@ -61,9 +66,6 @@ public class GameScreen implements Screen {
         private Texture mMenuBar;
         
         private float mStateTime;
-
-        private int mPlayerX;
-        private int mPlayerY;
         
     public GameScreen(final MemoryWars gam) {
         this.game = gam;
@@ -95,15 +97,14 @@ public class GameScreen implements Screen {
         mWorld = new Tile[25][15];
         for (int i = 0; i < mWorld.length; i++) {
             for (int j = 0; j < mWorld[i].length; j++) {
-                mWorld[i][j] = mDirtTile;
+                if (i > 17) {
+                    mWorld[i][j] = mWaterTile;
+                }
+                else {
+                    mWorld[i][j] = mDirtTile;
+                }
             }
         }
-        
-        mWorld[5][5] = mWaterTile;
-        mWorld[5][6] = mWaterTile;
-        mWorld[5][7] = mWaterTile;
-        mWorld[5][8] = mWaterTile;
-        mWorld[5][9] = mWaterTile;
         
         /*
         mWorld = new Tile[][] {
@@ -124,33 +125,21 @@ public class GameScreen implements Screen {
             {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile}            
         }; 
         */
-        /*
-        mWorld = new Tile[][] {
-            {mBridgeTile, mDirtTile, mDirtTile},
-            {mDirtTile, mWaterTile, mDirtTile},
-            {mDirtTile, mWaterTile, mGrassTile} // TOP RIGHT
-        };*/
-                        
-        // Create the camera and spritebatch
+        
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         
         // Create a rectangle for the bucket hitbox
-        mPlayer = new Rectangle();
-        
-        mPlayerX = 0;
-        mPlayerY = 0;
-        
-        //mPlayerPosition = new char[][] {{0}};
-        //mPlayerPosition[mPlayerX][mPlayerY] = 1;
-        
-        mPlayer.width = 32;
-        mPlayer.height = 32;
+        mPlayer = new Player();
+                
     }
     
     private void initSounds() {
         mInvalidSound = Gdx.audio.newSound(Gdx.files.internal("invalid.mp3"));
         mSelectionSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
+        mMeow = Gdx.audio.newSound(Gdx.files.internal("meow.wav"));
+        mBark = Gdx.audio.newSound(Gdx.files.internal("bark.wav"));
+        
         mFirstLevelMusic = Gdx.audio.newMusic(Gdx.files.internal(
          "first_level.mp3"));
         mFirstLevelMusic.setLooping(true); 
@@ -169,6 +158,8 @@ public class GameScreen implements Screen {
         mWaterTile.setTerrainType(1);
         mDirtTile.setTerrainType(2);
         mBridgeTile.setTerrainType(3);
+              
+        mCatTile = new Tile (new Texture(Gdx.files.internal("cat.png")));
         
         mPlayerImage = new Texture(Gdx.files.internal("player.png"));        
     }
@@ -211,38 +202,38 @@ public class GameScreen implements Screen {
     }
 
     public void render (float delta) {
-            // Clear the screen with a dark blue color            
-            Gdx.gl.glClearColor(0, 0, 0.2f, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-            
-            camera.update();
+        // Clear the screen with a dark blue color            
+        Gdx.gl.glClearColor(0, 0, 0.2f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            game.batch.setProjectionMatrix(camera.combined);
+        camera.update();
 
-            // Animating the player
-            mStateTime += Gdx.graphics.getDeltaTime();
-            mCurrentPlayerFrame = mPlayerAnimation.getKeyFrame(mStateTime, true);
-            mCurrentWaterFrame = mWaterAnimation.getKeyFrame(mStateTime, true);
-            
-            // Animating the water
-            
-            
-            
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-            game.batch.begin();
-            
-            // This method lays out the tiles
-            // based on the map array
-            generateMap();
-            //game.batch.draw(mMenuBar, 20, 20);
-            game.batch.draw(mCurrentPlayerFrame, mPlayerX, mPlayerY);
-            game.batch.draw(mPlayerAnimation.getKeyFrame(delta, true), 0, 0);
+        game.batch.setProjectionMatrix(camera.combined);
 
-            game.batch.end();
+        // Animating the player
+        mStateTime += Gdx.graphics.getDeltaTime();
+        mCurrentPlayerFrame = mPlayerAnimation.getKeyFrame(mStateTime, true);
+        mCurrentWaterFrame = mWaterAnimation.getKeyFrame(mStateTime, true);
 
-            checkPlayerMovement();
-            checkPlayerBounds();
+        // Animating the water
+
+
+
+        ////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////
+        game.batch.begin();
+
+        // This method lays out the tiles
+        // based on the map array
+        generateMap();
+        //game.batch.draw(mMenuBar, 20, 20);
+        game.batch.draw(mCurrentPlayerFrame, mPlayer.getX(), mPlayer.getY());
+        game.batch.end();
+        ////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////
+
+        checkPlayerMovement();
+        checkPlayerBounds();
     }
     
     private void generateMap() {
@@ -259,123 +250,107 @@ public class GameScreen implements Screen {
                 }
                 else if (mWorld[i][j].equals(mBridgeTile)) {
                     game.batch.draw(mBridgeTile.getImage(), i * TILE_SIZE, j * TILE_SIZE);
+                }               
+                else if (mWorld[i][j].equals(mCatTile)) {
+                    game.batch.draw(mCatTile.getImage(), i * TILE_SIZE, j * TILE_SIZE);
                 }
-                
-                /*
-                
-                switch (mWorld[i][j]) {
-                    case 0:
-                        game.batch.draw(mGrassTile.getImage(), j * TILE_SIZE,
-                         i * TILE_SIZE);
-                        break;
-                    case 1:                        
-                        game.batch.draw(mWaterAnimation.getKeyFrame(mStateTime, true), j * TILE_SIZE, i * TILE_SIZE);
-                        break;
-                    case 2:
-                        game.batch.draw(mBridgeTile.getImage(), j* TILE_SIZE, 
-                         i * TILE_SIZE);
-                        break;
-                    case 3:
-                        game.batch.draw(mDirtTile.getImage(), j * TILE_SIZE,
-                         i * TILE_SIZE);
-                        break;
-                    case 4:
-                        game.batch.draw(mDirtTile2.getImage(), j * TILE_SIZE,
-                         i* TILE_SIZE);
-                        break;
-                    case 5:
-                        game.batch.draw(mOrangeTreeTile.getImage(),
-                         j * TILE_SIZE, i * TILE_SIZE);
-                        break;
-                    case 6:
-                        game.batch.draw(mDirtTile3.getImage(), j * TILE_SIZE, i * TILE_SIZE);
-                        break;
-                    case 7:
-                        game.batch.draw(mMountainSheet, j * TILE_SIZE, i * TILE_SIZE);
-                        break;
-                    default:
-                        break;
-                        
-                }*/
             }
         }
     }
     
-    public void checkPlayerMovement() {  
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {                       
-            System.out.println("mPlayerX:" + mPlayerX + ", mPlayerY: " + mPlayerY); 
-            System.out.println("Array: " + mWorld[mPlayerX/32][mPlayerY/32]);
+    public void checkPlayerMovement() {         
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            mMeow.play();
+            mWorld[mPlayer.getX() / TILE_SIZE][mPlayer.getY() / TILE_SIZE] = mCatTile;
+        }
+        
+        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+            mBark.play();
+        }
+        
+        
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
+            mMeow.play(1, 1.2f, 1.2f);
+            mWorld[mPlayer.getX() / TILE_SIZE][mPlayer.getY() / TILE_SIZE] = mCatTile;
+        }
+        
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            mMeow.play(1, 1.3f, 1.3f);
+            mWorld[mPlayer.getX() / TILE_SIZE][mPlayer.getY() / TILE_SIZE] = mCatTile;
+        }
+        
+        if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+            mMeow.play(1, 1.6f, 1.6f);
+            mWorld[mPlayer.getX() / TILE_SIZE][mPlayer.getY() / TILE_SIZE] = mCatTile;
         }
         
         if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {                       
-            if((mPlayerX / TILE_SIZE) - 1 < 0) {
+            if((mPlayer.getX() / TILE_SIZE) - 1 < 0
+            || mWorld[(mPlayer.getX() / TILE_SIZE) - 1][(mPlayer.getY() / TILE_SIZE)].isPassable()) {
                 mInvalidSound.play();
             }            
-            else if(mWorld[(mPlayerX / TILE_SIZE) - 1][(mPlayerY / TILE_SIZE)].equals(mWaterTile)) {
-                mInvalidSound.play();
-            }
             else {
                mSelectionSound.play(); 
-               mPlayerX -= TILE_SIZE;      
+               mPlayer.move("left");
             }                               
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {                                                          
             // First check if player is at the edge of the map
-            if((mPlayerX / TILE_SIZE) + 1 >= SCREEN_WIDTH_PX / TILE_SIZE) {
+            if((mPlayer.getX() / TILE_SIZE) + 1 >= SCREEN_WIDTH_PX / TILE_SIZE) {
                 mInvalidSound.play();
             }            
-            else if(mWorld[(mPlayerX / TILE_SIZE) + 1][(mPlayerY / TILE_SIZE)].equals(mWaterTile)) {
+            else if(mWorld[(mPlayer.getX() / TILE_SIZE) + 1][(mPlayer.getY() / TILE_SIZE)].equals(mWaterTile)) {
                 mInvalidSound.play();
             }
             else {
                 mSelectionSound.play(); 
-                mPlayerX += TILE_SIZE;
+                mPlayer.move("right");
             }            
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            if((mPlayerY / TILE_SIZE) + 1 >= SCREEN_HEIGHT_PX / TILE_SIZE) {
+            if((mPlayer.getY() / TILE_SIZE) + 1 >= SCREEN_HEIGHT_PX / TILE_SIZE) {
                 mInvalidSound.play();
             }            
-            else if(mWorld[(mPlayerX / TILE_SIZE)][(mPlayerY / TILE_SIZE) + 1].equals(mWaterTile)) {
+            else if(mWorld[(mPlayer.getX() / TILE_SIZE)][(mPlayer.getY() / TILE_SIZE) + 1].equals(mWaterTile)) {
                 mInvalidSound.play();
             }
             else {
                 mSelectionSound.play();
-                mPlayerY += TILE_SIZE;
+                mPlayer.move("up");
             }     
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            if((mPlayerY / TILE_SIZE) - 1 < 0) {
+            if((mPlayer.getY() / TILE_SIZE) - 1 < 0) {
                 mInvalidSound.play();
             }            
-            else if(mWorld[mPlayerX / TILE_SIZE][(mPlayerY / TILE_SIZE) - 1].equals(mWaterTile)) {
+            else if(mWorld[mPlayer.getX() / TILE_SIZE][(mPlayer.getY() / TILE_SIZE) - 1].equals(mWaterTile)) {
                 mInvalidSound.play();
             }
             else {
                mSelectionSound.play();
-               mPlayerY -= TILE_SIZE;
+               mPlayer.move("down");
             }                         
         }                
     }
 
     public void checkPlayerBounds() {
-        if (mPlayerX < 0) {
-            mPlayerX = 0;
+        if (mPlayer.getX() < 0) {
+            mPlayer.setX(0);
         }
         
-        if (mPlayerY < 0) {
-            mPlayerY = 0;
+        if (mPlayer.getY() < 0) {
+            mPlayer.setY(0);
         }
         
-        if (mPlayerY > SCREEN_HEIGHT_PX - TILE_SIZE) {
-            mPlayerY = SCREEN_HEIGHT_PX - TILE_SIZE;
+        if (mPlayer.getY() > SCREEN_HEIGHT_PX - TILE_SIZE) {
+            mPlayer.setY(SCREEN_HEIGHT_PX - TILE_SIZE);
         }
 
-        if (mPlayerX > SCREEN_WIDTH_PX - TILE_SIZE) {
-            mPlayerX = SCREEN_WIDTH_PX - TILE_SIZE;
+        if (mPlayer.getX() > SCREEN_WIDTH_PX - TILE_SIZE) {
+            mPlayer.setX(SCREEN_WIDTH_PX - TILE_SIZE);
         }                    
     }
     
