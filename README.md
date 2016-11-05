@@ -11,3 +11,5 @@ There is a Tile class implemented (Tile.java) that defines each tile type. Curre
 Currently, the main character is animated with 6 frames. The water is also animated with two frames.
 
 Use the arrow keys to move. Player cannot walk past water currently. 
+
+Player can also drop a water tile by pressing the "M" key. The player cannot move past this water tile after it has been placed, as with other water tiles.
