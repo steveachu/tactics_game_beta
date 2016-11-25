@@ -11,10 +11,8 @@ public class MemoryWars extends Game {
     
     public void create() {
         batch = new SpriteBatch();
-        
         font = new BitmapFont(); // Default Arial font
         this.setScreen(new MainMenuScreen(this));
-        
     }
     
     public void render() {
