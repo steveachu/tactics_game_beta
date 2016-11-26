@@ -69,31 +69,14 @@ public class GameScreen implements Screen {
         
     public GameScreen(final MemoryWars gam) {
         this.game = gam;
-        // Generate the map
-        /*mWorld  = new short[][] {
-            {3,3,3,3,3,3,1,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
-            {3,3,3,3,3,3,1,1,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
-            {3,3,4,3,3,3,3,1,1,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
-            {3,3,3,3,4,3,3,3,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {3,3,4,3,4,6,4,3,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {3,6,6,4,3,3,3,3,6,6,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0},
-            {6,6,6,6,3,3,3,3,6,6,4,1,1,1,0,0,0,0,0,0,0,0,0,0,0},
-            {3,3,3,3,4,3,6,3,3,6,6,1,1,1,0,0,0,0,0,0,0,0,0,0,0},
-            {6,3,6,4,3,6,6,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0},
-            {6,3,6,6,3,3,4,3,3,3,3,6,1,1,1,1,0,0,0,0,0,0,0,0,0},
-            {3,4,3,7,6,6,3,3,4,3,3,3,3,1,1,1,1,1,0,0,0,0,0,0,0},
-            {3,3,3,6,6,6,6,6,4,3,3,3,3,3,6,1,1,1,1,1,1,1,0,0,0},
-            {3,3,3,6,6,6,6,6,4,4,3,3,3,4,3,1,1,1,1,1,1,1,0,0,0},
-            {3,3,3,6,3,4,3,3,3,3,6,3,3,3,4,3,6,1,1,1,1,1,1,0,0},
-            {3,3,6,6,6,6,3,3,3,3,3,3,6,6,6,6,6,1,1,1,1,1,1,0,0}
-        };*/               
-        
+
         mMenuBar = new Texture(Gdx.files.internal("menu_bar.png"));                        
         
         initSpriteAnimation();
         initTextures();
         initSounds(); 
-        
+	        
+        // Generate the map
         mWorld = new Tile[25][15];
         for (int i = 0; i < mWorld.length; i++) {
             for (int j = 0; j < mWorld[i].length; j++) {
@@ -105,33 +88,12 @@ public class GameScreen implements Screen {
                 }
             }
         }
-        
-        /*
-        mWorld = new Tile[][] {
-            {mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile},
-            {mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mWaterTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile,mDirtTile}            
-        }; 
-        */
-        
+	    
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         
         // Create a rectangle for the bucket hitbox
-        mPlayer = new Player();
-                
+        mPlayer = new Player();     
     }
     
     private void initSounds() {
